@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Exam Browser - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .admin-panel {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button.secondary {
+            background: #6c757d;
+        }
+
+        .button.danger {
+            background: #dc3545;
+        }
+
+        .button.success {
+            background: #28a745;
+        }
+
+        .status-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .status-label {
+            font-weight: bold;
+        }
+
+        .status-value {
+            color: #667eea;
+        }
+
+        .domain-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .domain-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .domain-item button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .alert.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Safe Exam Browser</h1>
+            <p>Panel Administrator untuk Penyelenggara Ujian</p>
+        </div>
+
+        <div class="admin-panel">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('config')">⚙️ Konfigurasi</button>
+                <button class="tab" onclick="showTab('security')">🛡️ Keamanan</button>
+                <button class="tab" onclick="showTab('monitoring')">📊 Monitoring</button>
+                <button class="tab" onclick="showTab('control')">🎮 Kontrol</button>
+            </div>
+
+            <!-- Tab Konfigurasi -->
+            <div id="config" class="tab-content active">
+                <h3>📝 Konfigurasi Ujian</h3>
+                
+                <div class="grid">
+                    <div>
+                        <div class="form-group">
+                            <label for="examTitle">Judul Ujian</label>
+                            <input type="text" id="examTitle" placeholder="Masukkan judul ujian">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="examUrl">URL Ujian</label>
+                            <input type="url" id="examUrl" placeholder="https://exam.example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="examDuration">Durasi Ujian (menit)</label>
+                            <input type="number" id="examDuration" min="1" max="480" value="120">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="form-group">
+                            <label for="studentName">Nama Siswa</label>
+                            <input type="text" id="studentName" placeholder="Nama lengkap siswa">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="studentId">ID/NIS Siswa</label>
+                            <input type="text" id="studentId" placeholder="Nomor induk siswa">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="studentClass">Kelas</label>
+                            <input type="text" id="studentClass" placeholder="Kelas siswa">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="allowedDomains">Domain yang Diizinkan</label>
+                    <div style="display: flex; margin-bottom: 10px;">
+                        <input type="text" id="newDomain" placeholder="example.com" style="flex: 1; margin-right: 10px;">
+                        <button class="button" onclick="addDomain()">Tambah</button>
+                    </div>
+                    <div id="domainList" class="domain-list"></div>
+                </div>
+
+                <button class="button success" onclick="saveConfig()">💾 Simpan Konfigurasi</button>
+            </div>
+
+            <!-- Tab Keamanan -->
+            <div id="security" class="tab-content">
+                <h3>🛡️ Pengaturan Keamanan</h3>
+                
+                <div class="form-group">
+                    <label for="adminPassword">Password Administrator</label>
+                    <input type="password" id="adminPassword" placeholder="Masukkan password admin">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="blockKeyboardShortcuts" checked>
+                    <label for="blockKeyboardShortcuts">Blokir Shortcut Keyboard (Alt+Tab, Ctrl+Alt+Del, dll)</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="blockTaskSwitching" checked>
+                    <label for="blockTaskSwitching">Blokir Pergantian Aplikasi</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="blockScreenshots" checked>
+                    <label for="blockScreenshots">Blokir Screenshot</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableFullscreen" checked>
+                    <label for="enableFullscreen">Mode Fullscreen/Kiosk</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="allowPaste">
+                    <label for="allowPaste">Izinkan Copy-Paste</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="allowPrint">
+                    <label for="allowPrint">Izinkan Print</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="blockTextSelection">
+                    <label for="blockTextSelection">Blokir Seleksi Teks</label>
+                </div>
+
+                <button class="button success" onclick="saveSecuritySettings()">🔐 Simpan Pengaturan Keamanan</button>
+            </div>
+
+            <!-- Tab Monitoring -->
+            <div id="monitoring" class="tab-content">
+                <h3>📊 Monitoring & Status</h3>
+                
+                <div class="status-panel">
+                    <h4>Status Sistem</h4>
+                    <div class="status-item">
+                        <span class="status-label">Status Ujian:</span>
+                        <span class="status-value" id="examStatus">Belum Dimulai</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Sisa Waktu:</span>
+                        <span class="status-value" id="remainingTime">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Siswa Aktif:</span>
+                        <span class="status-value" id="activeStudent">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Keamanan:</span>
+                        <span class="status-value" id="securityStatus">Aktif</span>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="monitoringEnabled" checked>
+                    <label for="monitoringEnabled">Aktifkan Monitoring Real-time</label>
+                </div>
+
+                <div class="form-group">
+                    <label>Log Aktivitas:</label>
+                    <textarea id="activityLog" rows="10" readonly placeholder="Log aktivitas akan muncul di sini..."></textarea>
+                </div>
+
+                <button class="button" onclick="exportLogs()">📥 Export Log</button>
+                <button class="button secondary" onclick="clearLogs()">🗑️ Hapus Log</button>
+            </div>
+
+            <!-- Tab Kontrol -->
+            <div id="control" class="tab-content">
+                <h3>🎮 Kontrol Ujian</h3>
+                
+                <div class="status-panel">
+                    <h4>Informasi Ujian</h4>
+                    <div class="status-item">
+                        <span class="status-label">Judul:</span>
+                        <span class="status-value" id="currentExamTitle">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">URL:</span>
+                        <span class="status-value" id="currentExamUrl">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Durasi:</span>
+                        <span class="status-value" id="currentExamDuration">-</span>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="button success" id="startExamBtn" onclick="startExam()" style="font-size: 18px; padding: 15px 40px;">
+                        🚀 Mulai Ujian
+                    </button>
+                    <button class="button danger" id="stopExamBtn" onclick="stopExam()" style="font-size: 18px; padding: 15px 40px; display: none;">
+                        ⏹️ Hentikan Ujian
+                    </button>
+                </div>
+
+                <div class="alert" id="controlAlert" style="display: none;"></div>
+
+                <div style="text-align: center;">
+                    <button class="button secondary" onclick="testMode()">🧪 Mode Test</button>
+                    <button class="button" onclick="resetSettings()">🔄 Reset Pengaturan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Password -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>🔐 Masukkan Password Administrator</h3>
+            <div class="form-group">
+                <input type="password" id="modalPassword" placeholder="Password">
+            </div>
+            <button class="button success" onclick="verifyPassword()">✅ Verifikasi</button>
+            <button class="button secondary" onclick="closeModal()">❌ Batal</button>
+        </div>
+    </div>
+
+    <script>
+        let currentConfig = {};
+        let allowedDomains = [];
+        let examStartTime = null;
+        let timerInterval = null;
+
+        // Inisialisasi
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadConfig();
+            updateUI();
+        });
+
+        // Fungsi untuk menampilkan tab
+        function showTab(tabName) {
+            // Sembunyikan semua tab content
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Hapus class active dari semua tab
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Tampilkan tab yang dipilih
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Fungsi untuk memuat konfigurasi
+        // Fungsi untuk memuat konfigurasi
+async function loadConfig() {
+    try {
+        currentConfig = await window.sebAPI.getConfig();
+        allowedDomains = currentConfig.allowedDomains || [];
+        
+        // Update form inputs dari konfigurasi
+        document.getElementById('examTitle').value = currentConfig.examTitle;
+        document.getElementById('examUrl').value = currentConfig.examUrl;
+        document.getElementById('examDuration').value = currentConfig.examDuration;
+        document.getElementById('studentName').value = currentConfig.studentInfo.name;
+        document.getElementById('studentId').value = currentConfig.studentInfo.id;
+        document.getElementById('studentClass').value = currentConfig.studentInfo.class;
+
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('blockKeyboardShortcuts').checked = currentConfig.blockKeyboardShortcuts;
+        document.getElementById('blockTaskSwitching').checked = currentConfig.blockTaskSwitching;
+        document.getElementById('blockScreenshots').checked = currentConfig.blockScreenshots;
+        document.getElementById('enableFullscreen').checked = currentConfig.enableFullscreen;
+        document.getElementById('allowPaste').checked = currentConfig.allowPaste;
+        document.getElementById('allowPrint').checked = currentConfig.allowPrint;
+        document.getElementById('blockTextSelection').checked = currentConfig.blockTextSelection || false;
+
+        document.getElementById('monitoringEnabled').checked = currentConfig.monitoringEnabled;
+
+        renderAllowedDomains();
+
+    } catch (error) {
+        console.error('Error loading config:', error);
+    }
+}
+
+// Fungsi untuk menyimpan konfigurasi
+async function saveConfig() {
+    currentConfig.examTitle = document.getElementById('examTitle').value;
+    currentConfig.examUrl = document.getElementById('examUrl').value;
+    currentConfig.examDuration = parseInt(document.getElementById('examDuration').value, 10);
+    currentConfig.studentInfo.name = document.getElementById('studentName').value;
+    currentConfig.studentInfo.id = document.getElementById('studentId').value;
+    currentConfig.studentInfo.class = document.getElementById('studentClass').value;
+    currentConfig.allowedDomains = allowedDomains;
+
+    const success = await window.sebAPI.saveConfig(currentConfig);
+
+    if (success) {
+        alert('Konfigurasi berhasil disimpan.');
+    } else {
+        alert('Gagal menyimpan konfigurasi.');
+    }
+}
+
+// Fungsi untuk menyimpan pengaturan keamanan
+async function saveSecuritySettings() {
+    currentConfig.adminPassword = document.getElementById('adminPassword').value ? 
+        await hashPassword(document.getElementById('adminPassword').value) : currentConfig.adminPassword;
+    currentConfig.blockKeyboardShortcuts = document.getElementById('blockKeyboardShortcuts').checked;
+    currentConfig.blockTaskSwitching = document.getElementById('blockTaskSwitching').checked;
+    currentConfig.blockScreenshots = document.getElementById('blockScreenshots').checked;
+    currentConfig.enableFullscreen = document.getElementById('enableFullscreen').checked;
+    currentConfig.allowPaste = document.getElementById('allowPaste').checked;
+    currentConfig.allowPrint = document.getElementById('allowPrint').checked;
+    currentConfig.blockTextSelection = document.getElementById('blockTextSelection').checked;
+
+    const success = await window.sebAPI.saveConfig(currentConfig);
+
+    if (success) {
+        alert('Pengaturan keamanan berhasil disimpan.');
+    } else {
+        alert('Gagal menyimpan pengaturan keamanan.');
+    }
+}
+
+// Fungsi untuk menambahkan domain
+function addDomain() {
+    const domainInput = document.getElementById('newDomain');
+    const domain = domainInput.value.trim();
+    if (domain && !allowedDomains.includes(domain)) {
+        allowedDomains.push(domain);
+        renderAllowedDomains();
+        domainInput.value = '';
+    }
+}
+
+// Fungsi untuk render daftar domain yang diizinkan
+function renderAllowedDomains() {
+    const domainList = document.getElementById('domainList');
+    domainList.innerHTML = '';
+
+    allowedDomains.forEach((domain, index) => {
+        const domainItem = document.createElement('div');
+        domainItem.className = 'domain-item';
+        domainItem.innerHTML = `
+            <span>${domain}</span>
+            <button onclick="removeDomain(${index})">Hapus</button>
+        `;
+        domainList.appendChild(domainItem);
+    });
+}
+
+// Fungsi untuk menghapus domain
+function removeDomain(index) {
+    allowedDomains.splice(index, 1);
+    renderAllowedDomains();
+}
+
+// Fungsi untuk memulai ujian
+async function startExam() {
+    await window.sebAPI.startExam();
+    document.getElementById('examStatus').textContent = 'Ujian Berjalan';
+}
+
+// Fungsi untuk menghentikan ujian
+async function stopExam() {
+    document.getElementById('passwordModal').style.display = 'block';
+}
+
+async function verifyPassword() {
+    const password = document.getElementById('modalPassword').value;
+    const isValid = await window.sebAPI.exitExam(password);
+
+    if (isValid) {
+        alert('Ujian berhasil dihentikan.');
+        document.getElementById('examStatus').textContent = 'Ujian Selesai';
+    } else {
+        alert('Password salah.');
+    }
+    closeModal();
+}
+
+function closeModal() {
+    document.getElementById('passwordModal').style.display = 'none';
+    document.getElementById('modalPassword').value = '';
+}
+
+// Hash Password menggunakan SHA-256 di client
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+</script>
+</body>
